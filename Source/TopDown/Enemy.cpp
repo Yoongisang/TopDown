@@ -43,3 +43,17 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void AEnemy::Highlight()
+{
+	bHighlighted = true;
+	GetMesh()->SetRenderCustomDepth(true);
+
+}
+
+void AEnemy::Unhighlight()
+{
+	bHighlighted = false;
+	GetMesh()->SetRenderCustomDepth(false);
+}
+
