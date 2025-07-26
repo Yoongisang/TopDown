@@ -44,6 +44,12 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
+	return 0.0f;
+}
+
 void AEnemy::Highlight()
 {
 	bHighlighted = true;
