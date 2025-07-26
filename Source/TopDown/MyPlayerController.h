@@ -18,8 +18,19 @@ private:
 	bool bMousePressed = false;
 
 protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	class AMyPlayer* MyPlayer;
+
+	UPROPERTY(BlueprintReadOnly)
+	class AEnemy* PointActor;
+
 	UPROPERTY(BlueprintReadOnly)
 	class AEnemy* TargetActor;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;
+
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -45,6 +56,9 @@ protected:
 
 	virtual void SetupInputComponent() override;
 
+	virtual void PlayerTick(float DeltaTime) override;
+
+
 protected:
 
 	/** Input handlers */
@@ -54,9 +68,8 @@ protected:
 
 	void OnSetDestinationReleased();
 
-	virtual void PlayerTick(float DeltaTime) override; // Tick 추가
-
 protected:
 	void CheckCursorTrace();	//CursorTrace 추가
+	void FollowAndAttack();
 
 };
