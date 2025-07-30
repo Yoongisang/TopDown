@@ -3,6 +3,10 @@
 
 #include "Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "EnemyAIController.h"
+#include "CharacterAnim.h"
+#include "Kismet/GameplayStatics.h"
+#include "MyPlayer.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -20,6 +24,8 @@ AEnemy::AEnemy()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
+	AIControllerClass = AEnemyAIController::StaticClass();
+	
 
 }
 
@@ -27,6 +33,9 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	CharacterAnim = Cast<UCharacterAnim>(GetMesh()->GetAnimInstance());
+	CharacterAnim->OnMontageEnded.AddDynamic(this, &AEnemy::OnAttackMontageEnded);
+	CharacterAnim->OnAttackHit.AddUObject(this, &AEnemy::OnAttackHit);
 
 }
 
@@ -63,3 +72,56 @@ void AEnemy::Unhighlight()
 	GetMesh()->SetRenderCustomDepth(false);
 }
 
+void AEnemy::EnemyAttack()
+{
+	if (bIsAttacking)
+		return;
+
+	CharacterAnim->PlayAttackMontage();
+
+	bIsAttacking = true;
+
+}
+
+void AEnemy::OnAttackHit()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	float AttackRange = 250.f;
+	float AtttackRadius = 50.f;
+	float HalfHeight = AttackRange * 0.5f + AtttackRadius;
+
+	FVector Forward = GetActorForwardVector() * AttackRange;
+	FQuat Rot = FRotationMatrix::MakeFromZ(Forward).ToQuat();
+
+	bool Result = GetWorld()->SweepSingleByChannel(OUT HitResult,
+		GetActorLocation(),
+		GetActorLocation() + Forward,
+		Rot,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeCapsule(AtttackRadius, HalfHeight),
+		Params);
+
+	FVector Center = GetActorLocation() + Forward * 0.5f;
+	FQuat Rotation = FRotationMatrix::MakeFromZ(Forward).ToQuat();
+
+	FColor DrawColor = Result ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AtttackRadius, Rot, DrawColor, false, 2.f);
+
+	if (Result && HitResult.GetActor())
+	{
+		auto Player = Cast<AMyPlayer>(HitResult.GetActor());
+		if (Player)
+		{
+			UGameplayStatics::ApplyDamage(Player, 10.f, GetController(), nullptr, NULL);
+		}
+
+	}
+}
+
+void AEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	bIsAttacking = false;
+}

@@ -15,6 +15,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bHighlighted = false;
 
+	UPROPERTY(VisibleAnywhere)
+	bool bIsAttacking = false;
+
 public:
 	// Sets default values for this character's properties
 	AEnemy();
@@ -22,6 +25,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimInstance", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UCharacterAnim> CharacterAnim;
 
 public:	
 	// Called every frame
@@ -35,6 +41,10 @@ public:
 public:
 	void Highlight();
 	void Unhighlight();
+	void EnemyAttack();
 
+	void OnAttackHit();
 
+	UFUNCTION()
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 };

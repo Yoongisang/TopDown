@@ -20,13 +20,27 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCamera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimInstance", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UCharacterAnim> AnimInstance;
+
 
 public:
 	// Sets default values for this character's properties
 	AMyPlayer();
 
+public:
+	UPROPERTY(VisibleAnywhere)
+	bool bIsAttacking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimInstance", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UCharacterAnim> CharacterAnim;
+
+	void Attack();
+
+	void OnAttackHit();
+
+	UFUNCTION()
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

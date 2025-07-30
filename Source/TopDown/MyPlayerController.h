@@ -27,8 +27,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	class AEnemy* TargetActor;
 	
-	UPROPERTY(EditAnywhere)
-	class UAnimMontage* AttackMontage;
+	//UPROPERTY(EditAnywhere)
+	//class UAnimMontage* AttackMontage;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)

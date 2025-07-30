@@ -7,6 +7,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "CharacterAnim.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Enemy.h"
 
 // Sets default values
 AMyPlayer::AMyPlayer()
@@ -41,7 +43,10 @@ AMyPlayer::AMyPlayer()
 void AMyPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	AnimInstance = Cast<UCharacterAnim>(GetMesh()->GetAnimInstance());
+
+	CharacterAnim = Cast<UCharacterAnim>(GetMesh()->GetAnimInstance());
+	CharacterAnim->OnMontageEnded.AddDynamic(this, &AMyPlayer::OnAttackMontageEnded);
+	CharacterAnim->OnAttackHit.AddUObject(this, &AMyPlayer::OnAttackHit);
 
 }
 
@@ -59,3 +64,63 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AMyPlayer::Attack()
+{
+	if (bIsAttacking)
+		return;
+
+	CharacterAnim->PlayAttackMontage();
+
+	bIsAttacking = true;
+
+}
+
+void AMyPlayer::OnAttackHit()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	float AttackRange = 250.f;
+	float AtttackRadius = 50.f;
+	float HalfHeight = AttackRange * 0.5 + AtttackRadius;
+
+	FVector Forward = GetActorForwardVector() * AttackRange;
+	FQuat Rot = FRotationMatrix::MakeFromZ(Forward).ToQuat();
+
+	bool Result = GetWorld()->SweepSingleByChannel(OUT HitResult,
+		GetActorLocation(),
+		GetActorLocation() + Forward,
+		Rot,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeCapsule(AtttackRadius, HalfHeight),
+		Params);
+
+	FVector Center = GetActorLocation() + Forward * 0.5f;
+	FQuat Rotation = FRotationMatrix::MakeFromZ(Forward).ToQuat();
+
+	FColor DrawColor = Result ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AtttackRadius, Rot, DrawColor, false, 2.f);
+
+	if (Result && HitResult.GetActor())
+	{
+		auto Enemy = Cast<AEnemy>(HitResult.GetActor());
+		if (Enemy)
+		{
+			UGameplayStatics::ApplyDamage(Enemy, 10.f, GetController(), nullptr, NULL);
+		}
+		
+	}
+
+}
+
+void AMyPlayer::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	bIsAttacking = false;
+}
+
+float AMyPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
+	return 0.0f;
+}
