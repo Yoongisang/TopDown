@@ -7,6 +7,9 @@
 #include "CharacterAnim.h"
 #include "Kismet/GameplayStatics.h"
 #include "MyPlayer.h"
+#include "HpBarUserWidget.h"
+#include "Components/WidgetComponent.h"
+#include "CharacterInfo.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -26,6 +29,19 @@ AEnemy::AEnemy()
 
 	AIControllerClass = AEnemyAIController::StaticClass();
 	
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpBar"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+	static ConstructorHelpers::FClassFinder<UHpBarUserWidget> UW(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_HpBar.WBP_HpBar_C'"));
+	if (UW.Succeeded())
+	{
+		HpBar->SetWidgetClass(UW.Class);
+		HpBar->SetDrawSize(FVector2D(300.f, 20.f));
+		HpBar->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
+
+	}
+
+	CharacterInfo = CreateDefaultSubobject<UCharacterInfo>(TEXT("CharacterInfo"));
 
 }
 
@@ -36,6 +52,14 @@ void AEnemy::BeginPlay()
 	CharacterAnim = Cast<UCharacterAnim>(GetMesh()->GetAnimInstance());
 	CharacterAnim->OnMontageEnded.AddDynamic(this, &AEnemy::OnAttackMontageEnded);
 	CharacterAnim->OnAttackHit.AddUObject(this, &AEnemy::OnAttackHit);
+
+	
+
+	auto HpWidget = Cast<UHpBarUserWidget>(HpBar->GetUserWidgetObject());
+	if (HpWidget)
+	{
+		HpWidget->BindHp(CharacterInfo);
+	}
 
 }
 
@@ -55,8 +79,13 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
-	return 0.0f;
+	CharacterInfo->UpdateHp(Damage);
+
+	if (CharacterInfo->Status == ECharacterStatus::DEATH)
+		OnDead(DamageCauser);
+
+	return Damage;
+
 }
 
 void AEnemy::Highlight()
@@ -124,4 +153,10 @@ void AEnemy::OnAttackHit()
 void AEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	bIsAttacking = false;
+}
+
+void AEnemy::OnDead(AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("OnDead"));
+
 }
