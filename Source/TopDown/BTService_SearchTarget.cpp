@@ -33,7 +33,7 @@ void UBTService_SearchTarget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 			OverlapResults,
 			Center,
 			FQuat::Identity,
-			ECollisionChannel::ECC_GameTraceChannel1,
+			ECollisionChannel::ECC_GameTraceChannel2,
 			FCollisionShape::MakeSphere(SearchDistance),
 			QueryParams
 		);
