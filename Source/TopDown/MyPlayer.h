@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Creature.h"
 #include "MyPlayer.generated.h"
 
 UCLASS()
-class TOPDOWN_API AMyPlayer : public ACharacter
+class TOPDOWN_API AMyPlayer : public ACreature
 {
 	GENERATED_BODY()
 
@@ -25,31 +25,9 @@ private:
 public:
 	// Sets default values for this character's properties
 	AMyPlayer();
-
 public:
-	UPROPERTY(VisibleAnywhere)
-	bool bIsAttacking = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimInstance", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UCharacterAnim> CharacterAnim;
-
-	void Attack();
-
-	void OnAttackHit();
-
-	UFUNCTION()
-	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
+	virtual void OnDead(AActor* DamageCauser) override;
 
 };
