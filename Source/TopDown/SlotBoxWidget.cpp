@@ -17,4 +17,5 @@ USlotBoxWidget::USlotBoxWidget(const FObjectInitializer& ObjectInitializer) : Su
 
 void USlotBoxWidget::NativeConstruct()
 {
+	UE_LOG(LogTemp, Log, TEXT("NativeConstruct"));
 }
