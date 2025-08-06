@@ -11,6 +11,7 @@
  */
 
 class USlotWidget;
+class UItemWidget;
 class UUniformGridPanel;
 
 UCLASS()
@@ -22,7 +23,16 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 public:
-	TSubclassOf<USlotWidget> SlotWidget;
+
+	UPROPERTY()
+	TSubclassOf<USlotWidget> SlotWidgetClass;
+
+	UPROPERTY()
+	TSubclassOf<UItemWidget> ItemWidgetClass;
+
+
+	UPROPERTY()
+	TArray<USlotWidget*> slotWidgets;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> GridPanel;

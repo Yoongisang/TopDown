@@ -3,21 +3,11 @@
 
 #include "SlotWidget.h"
 
-void USlotWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+USlotWidget::USlotWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-	UE_LOG(LogTemp, Log, TEXT("NativeOnMouseEnter"));
 }
 
-void USlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+void USlotWidget::NativeConstruct()
 {
-	Super::NativeOnMouseLeave(InMouseEvent);
-	UE_LOG(LogTemp, Log, TEXT("NativeOnMouseLeave"));
 }
 
-FReply USlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-	UE_LOG(LogTemp, Log, TEXT("NativeOnMouseButtonDown"));
-	return Reply;
-}
