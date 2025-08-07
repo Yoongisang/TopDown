@@ -5,6 +5,7 @@
 #include "SlotWidget.h"
 #include "ItemWidget.h"
 #include "Components/UniformGridPanel.h"
+#include "ItemDragDropOperation.h"
 
 USlotBoxWidget::USlotBoxWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -27,12 +28,6 @@ void USlotBoxWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UE_LOG(LogTemp, Log, TEXT("NativeConstruct"));
-
-	const int COLUMN = 4;
-	const int ROW = 8;
-
-	//slotWidgets.SetNum(32);
 	slotWidgets.SetNum(COLUMN * ROW);
 
 	for (int x = 0; x < COLUMN; x++)
@@ -42,7 +37,6 @@ void USlotBoxWidget::NativeConstruct()
 			USlotWidget* SlotWidget = CreateWidget<USlotWidget>(GetWorld(), SlotWidgetClass);
 
 			int32 index = x * ROW + y;
-			UE_LOG(LogTemp, Log, TEXT("Index : %d"), index);
 			slotWidgets[index] = SlotWidget;
 			GridPanel->AddChildToUniformGrid(SlotWidget, y, x);
 
@@ -53,3 +47,35 @@ void USlotBoxWidget::NativeConstruct()
 	GridPanel->AddChildToUniformGrid(ItemWidget, 0, 0);
 
 }
+
+void USlotBoxWidget::InventoryItemChanged(const FIntPoint& ItemSlotPos)
+{
+}
+
+void USlotBoxWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragLeave(InDragDropEvent, InOperation);
+	UE_LOG(LogTemp, Log, TEXT("NativeOnDragLeave"));
+}
+
+bool USlotBoxWidget::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragOver(InGeometry, InDragDropEvent, InOperation);
+	UE_LOG(LogTemp, Log, TEXT("NativeOnDragOver"));
+	return false;
+}
+
+bool USlotBoxWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	UItemDragDropOperation* DragDrop = Cast<UItemDragDropOperation>(InOperation);
+
+	FVector2D MouseWidgetPos = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	FVector2D ToWidgetPos = MouseWidgetPos - DragDrop->DeltaWidgetPos;
+
+	UE_LOG(LogTemp, Log, TEXT("X : %f, Y : %f"), ToWidgetPos.X, ToWidgetPos.Y);
+
+	return false;
+	
+}
+

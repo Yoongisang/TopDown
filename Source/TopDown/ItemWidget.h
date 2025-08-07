@@ -11,12 +11,24 @@
  */
 class UImage;
 class UTextBlock;
+class UItemDragWidget;
 
 
 UCLASS()
 class TOPDOWN_API UItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+private:
+
+	FIntPoint CachedFromSlotPos = FIntPoint::ZeroValue;
+	FVector2D dCachedDeltaWidgetPos = FVector2D::ZeroVector;
+	int32 ItemCount = 0;
+
+protected:
+
+	UPROPERTY()
+	TSubclassOf<UItemDragWidget> ItemDragWidgetClass;
 
 public:
 
